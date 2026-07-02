@@ -1,0 +1,954 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard — Festa Junina 2026 · APM ITB</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-datalabels/2.2.0/chartjs-plugin-datalabels.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Segoe UI',Arial,sans-serif;background:#F7EDD5;color:#1a1008;min-height:100vh;}
+input,select{font-family:inherit;font-size:13px;padding:6px 10px;border:1px solid #ddd;border-radius:6px;background:#fff;color:#1a1008;width:100%;}
+input:focus,select:focus{outline:2px solid #EF9F27;outline-offset:1px;border-color:#EF9F27;}
+input[type=range]{padding:4px 0;border:none;background:transparent;accent-color:#EF9F27;cursor:pointer;}
+button{font-family:inherit;cursor:pointer;}
+.btn{font-size:13px;padding:6px 14px;border-radius:6px;border:1px solid #ddd;background:#fff;color:#333;transition:background .15s;}
+.btn:hover{background:#f5f5f5;}
+.btn-teal{background:#E1F5EE;color:#085041;border-color:#9FE1CB;}.btn-teal:hover{background:#9FE1CB;}
+.btn-coral{background:#FAECE7;color:#712B13;border-color:#F5C4B3;}.btn-coral:hover{background:#F5C4B3;}
+.btn-amber{background:#FAEEDA;color:#854F0B;border-color:#FAC775;}.btn-amber:hover{background:#FAC775;}
+.btn-blue{background:#E6F1FB;color:#0C447C;border-color:#B5D4F4;}.btn-blue:hover{background:#B5D4F4;}
+.btn-green{background:#1D9E75;color:#fff;border:none;}.btn-green:hover{background:#0F6E56;}
+.btn-pdf{background:#C0392B;color:#fff;border:none;}.btn-pdf:hover{background:#96281B;}
+.btn-xlsx{background:#1D6A36;color:#fff;border:none;}.btn-xlsx:hover{background:#155228;}
+.btn-ghost{background:transparent;border:1px solid rgba(133,79,11,.3);color:#854F0B;font-size:11px;}.btn-ghost:hover{background:rgba(250,199,117,.25);}
+.card{background:#fff;border:1px solid #e8dfc8;border-radius:12px;padding:16px;box-shadow:0 1px 4px rgba(0,0,0,.04);}
+.card-green{border:1px solid #9FE1CB;background:#FAFFFE;}
+.card-amber{border:1px solid #FAC775;background:#FFFDF7;}
+.header{background:linear-gradient(135deg,#FAEEDA 0%,#FDF3E3 100%);border-bottom:2px solid #FAC775;padding:16px 24px 0;}
+.header-top{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:12px;}
+.header-info{display:flex;align-items:center;gap:12px;}
+.header-title{font-size:20px;font-weight:700;color:#854F0B;}
+.header-sub{font-size:12px;color:#BA7517;margin-top:2px;}
+.export-btns{display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+.save-indicator{font-size:11px;color:#1D9E75;font-weight:600;display:flex;align-items:center;gap:4px;}
+.summary{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding:16px 24px;}
+.scard{background:#fff;border-radius:10px;padding:16px;border-left:4px solid;box-shadow:0 1px 4px rgba(0,0,0,.06);}
+.scard-label{font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:#777;margin-bottom:6px;}
+.scard-value{font-size:22px;font-weight:700;}
+.scard-sub{font-size:12px;color:#777;margin-top:3px;}
+.tabs{display:flex;gap:0;padding:0 24px;border-bottom:2px solid #F4D03F;background:#F7EDD5;}
+.tab{padding:10px 18px;border:none;background:transparent;font-size:14px;color:#888;border-bottom:2px solid transparent;margin-bottom:-2px;font-family:inherit;}
+.tab.active{color:#854F0B;border-bottom:2px solid #EF9F27;font-weight:700;}
+.tab:hover{color:#854F0B;}
+.content{padding:20px 24px;}
+table{width:100%;border-collapse:collapse;background:#fff;border:1px solid #e8dfc8;border-radius:12px;overflow:hidden;}
+th{text-align:left;font-size:12px;font-weight:600;color:#555;padding:10px 12px;border-bottom:1px solid #e8dfc8;background:#FAFAF5;}
+td{font-size:13px;padding:9px 12px;border-bottom:1px solid #f0e8d0;vertical-align:middle;}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:#FFFBF5;}
+tfoot td{background:#FFF8F0;font-weight:700;border-top:2px solid #e8dfc8;}
+label{font-size:11px;color:#666;display:block;margin-bottom:3px;}
+.badge{padding:2px 8px;border-radius:999px;font-size:11px;font-weight:600;white-space:nowrap;}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;}
+.section-title{font-size:15px;font-weight:600;margin-bottom:12px;}
+.upload-zone{border:2px dashed #FAC775;border-radius:10px;padding:22px;text-align:center;cursor:pointer;background:#FAEEDA22;transition:background .15s;}
+.upload-zone:hover{background:#FAEEDA66;}
+.preview-box{background:#F0FDF4;border:1px solid #9FE1CB;border-radius:8px;padding:10px 14px;display:flex;gap:20px;flex-wrap:wrap;align-items:center;}
+.preview-item{text-align:center;}
+.preview-label{font-size:10px;text-transform:uppercase;letter-spacing:.4px;color:#777;margin-bottom:2px;}
+.preview-value{font-size:16px;font-weight:700;}
+.pct-row{display:flex;align-items:center;gap:10px;}
+.pct-row input[type=number]{width:65px;flex-shrink:0;}
+.pct-row input[type=range]{flex:1;}
+.pct-row span{font-size:14px;color:#666;font-weight:600;min-width:30px;}
+.tag-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:4px;}
+.tipo-btn{padding:4px 12px;border-radius:999px;border:1px solid #ddd;background:#fff;font-size:12px;cursor:pointer;transition:all .15s;}
+.tipo-btn.active-barraca{background:#FAEEDA;color:#854F0B;border-color:#FAC775;font-weight:600;}
+.tipo-btn.active-sorteio{background:#EEEDFE;color:#3C3489;border-color:#C4C2F7;font-weight:600;}
+.tipo-btn.active-gremio{background:#EAF3DE;color:#27500A;border-color:#B5D9A0;font-weight:600;}
+.chart-legend{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:14px;}
+.chart-legend span{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:500;}
+.ldot{width:12px;height:12px;border-radius:3px;display:inline-block;}
+.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px;}
+.stat-box{background:#fff;border:1px solid #e8dfc8;border-radius:8px;padding:12px;text-align:center;}
+.stat-val{font-size:18px;font-weight:700;margin-bottom:2px;}
+.stat-lbl{font-size:10px;text-transform:uppercase;letter-spacing:.4px;color:#888;}
+.toast{position:fixed;bottom:20px;right:20px;background:#1D9E75;color:#fff;padding:10px 18px;border-radius:8px;font-size:13px;font-weight:600;opacity:0;transition:opacity .3s;pointer-events:none;z-index:999;}
+.toast.show{opacity:1;}
+@media(max-width:700px){
+  .summary,.grid2,.grid3,.stat-grid{grid-template-columns:1fr;}
+  .header-top{flex-direction:column;align-items:flex-start;}
+}
+@media print{
+  body{background:#fff;}
+  .tabs,.btn,.export-btns,input,select,.upload-zone,.add-form,.tag-row,.pct-row,.tipo-btn{display:none!important;}
+  .header{background:#fff;border-bottom:2px solid #ccc;}
+  .scard,.card{box-shadow:none;border:1px solid #ccc;}
+}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div class="toast" id="toast"></div>
+<script>
+const BRL=v=>(parseFloat(v)||0).toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
+const r2=v=>Math.round((parseFloat(v)||0)*100)/100;
+const esc=s=>String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+const now=()=>new Date().toLocaleDateString("pt-BR");
+const nowTime=()=>new Date().toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"});
+
+function toast(msg,color="#1D9E75"){
+  const el=document.getElementById("toast");
+  el.textContent=msg;el.style.background=color;el.classList.add("show");
+  setTimeout(()=>el.classList.remove("show"),3000);
+}
+
+/* ══════════════════════════════════════════════════
+   DADOS INICIAIS (usados apenas na 1ª vez)
+══════════════════════════════════════════════════ */
+const RECEITAS_INIT=[
+  {id:1,responsavel:"GELATO RETRÔ",data:"15/06/2026",receitaBruta:537,parceiro:402.75,apm:134.25,pct:25,tipo:"barraca"},
+  {id:2,responsavel:"Hambúrguer Iudinei",data:"12/06/2026",receitaBruta:3653,parceiro:2739.75,apm:913.25,pct:25,tipo:"barraca"},
+  {id:3,responsavel:"Eliana Bolos e Doces",data:"12/06/2026",receitaBruta:4037,parceiro:3027.75,apm:1009.25,pct:25,tipo:"barraca"},
+  {id:4,responsavel:"Hot Dog e Batata",data:"12/06/2026",receitaBruta:5045,parceiro:3783.75,apm:1261.25,pct:25,tipo:"barraca"},
+  {id:5,responsavel:"Milho",data:"12/06/2026",receitaBruta:1508,parceiro:1131,apm:377,pct:25,tipo:"barraca"},
+  {id:6,responsavel:"Sorverte da Vovó GIL",data:"12/06/2026",receitaBruta:1304,parceiro:978,apm:326,pct:25,tipo:"barraca"},
+  {id:7,responsavel:"Pastel Jefferson",data:"12/06/2026",receitaBruta:5649,parceiro:4519.20,apm:1129.80,pct:20,tipo:"barraca"},
+  {id:8,responsavel:"Churros Iolanda",data:"12/06/2026",receitaBruta:1902,parceiro:1426.50,apm:475.50,pct:25,tipo:"barraca"},
+  {id:9,responsavel:"Sorvetes da Vovó",data:"12/06/2026",receitaBruta:1304,parceiro:978,apm:326,pct:25,tipo:"barraca"},
+  {id:10,responsavel:"Grêmio Estudantil Gincanass",data:"12/06/2026",receitaBruta:1021,parceiro:1021,apm:0,pct:0,tipo:"gremio"},
+  {id:11,responsavel:"Sorteio APM — Comunidade Escolar",data:"12/06/2026",receitaBruta:56076,parceiro:0,apm:56076,pct:100,tipo:"sorteio"},
+  {id:12,responsavel:"Sorteio APM — Professores e Funcionários",data:"12/06/2026",receitaBruta:9136,parceiro:0,apm:9136,pct:100,tipo:"sorteio"},
+  {id:13,responsavel:"Sorteio APM — Dia do Evento",data:"12/06/2026",receitaBruta:898,parceiro:898,apm:0,pct:0,tipo:"sorteio"},
+];
+const GASTOS_INIT=[
+  {id:"g1",descricao:"Bebidas e salgadinhos — Biscoito Tortuguita, Água, Coca-Cola, Salgadinhos Lucky",fornecedor:"WMS Supermercados (Atacadão)",valor:1019.92,data:"15/06/2026",tipo:"alimentacao",origem:"Foto recibo"},
+  {id:"g2",descricao:"iPhone 17 Pro Titanio Laranja — prêmio sorteio",fornecedor:"GE Eletrônicos Ltda",valor:7395.00,data:"09/06/2026",tipo:"premio",origem:"NF-e 000.000.126"},
+  {id:"g3",descricao:"Bebidas — Coca-Cola Zero, Guard Snos 32×30, Suco Del V. Mais",fornecedor:"Atacadão WMS — Jardim Paulista",valor:342.08,data:"12/06/2026",tipo:"alimentacao",origem:"Foto recibo"},
+  {id:"g4",descricao:"Refrigerantes — Coca-Cola Pet, Fanta, Sprite, Guaraná Antarctica",fornecedor:"Atacadão WMS — Av. Alziro Soares",valor:271.50,data:"11/06/2026",tipo:"alimentacao",origem:"Foto recibo"},
+  {id:"g5",descricao:"Embalagens — Pipoca Shell Alu, Sacos 20×29cm",fornecedor:"Santos e Venezian Com.Emb.Ltda",valor:12.68,data:"09/06/2026",tipo:"material",origem:"Foto recibo"},
+  {id:"g6",descricao:"Bebidas a granel — Dolly Limão 252un, Guaraná Dolly 348un, Coca-Cola 120 latas",fornecedor:"Atacadão Jandira",valor:1680.00,data:"10/06/2026",tipo:"alimentacao",origem:"Foto recibo"},
+  {id:"g7",descricao:"Alimentos e ingredientes — Leite Nestlé, Verduras, Bacon, Linguiça, Azeite",fornecedor:"Atacadão WMS — Av. Alziro Soares",valor:621.74,data:"11/06/2026",tipo:"alimentacao",origem:"Foto recibo"},
+  {id:"g8",descricao:"Combustível — Etanol Hidratado 15,504 L",fornecedor:"Parque dos Camargos Combustíveis",valor:60.00,data:"09/06/2026",tipo:"servico",origem:"Foto recibo"},
+  {id:"g9",descricao:"Papelaria — Pastas Novaonda, Plástico plastificação A4, Etiquetas",fornecedor:"Kalunga SA — Nova Aldeinha",valor:712.10,data:"08/06/2026",tipo:"material",origem:"Foto recibo"},
+  {id:"g10",descricao:"Decoração — Bandeiras, Cartolas, Chapéus, Jogos Americanos, Figurinhas",fornecedor:"Loja Variedades — Vila Engenho Novo",valor:1114.69,data:"11/06/2026",tipo:"decoracao",origem:"Foto recibo"},
+  {id:"g11",descricao:"Bebidas — Dolly Limão 120un, Coca-Cola 60 latas, Guaraná 180un, Água H2O 72un",fornecedor:"Assaí — Sendas Distribuidora",valor:1116.48,data:"09/06/2026",tipo:"alimentacao",origem:"Foto recibo"},
+  {id:"g12",descricao:"Caixa de Som JBL Flip 7 Bluetooth Branca — prêmio sorteio",fornecedor:"EBAZAR.COM.BR LTDA",valor:647.02,data:"09/06/2026",tipo:"premio",origem:"NF-e 128.211.966"},
+  {id:"g13",descricao:"Baú Madeira MDF + Cadeado × 4 unidades (lote 1)",fornecedor:"Paulo Roberto da Silva",valor:252.00,data:"08/06/2026",tipo:"material",origem:"NF-e 000.012.042"},
+  {id:"g14",descricao:"Baú Madeira MDF + Cadeado × 4 unidades (lote 2)",fornecedor:"Paulo Roberto da Silva",valor:252.00,data:"08/06/2026",tipo:"material",origem:"NF-e 000.012.041"},
+  {id:"g15",descricao:"Pulseiras Numeradas à Prova D'Água — 1000 Rosa + 1000 Verde (2000 un.)",fornecedor:"Maniavip — Impressos de Segurança",valor:198.00,data:"08/06/2026",tipo:"material",origem:"NF-e 000.062.742"},
+];
+
+const TBADGE={
+  barraca:{bg:"#FAEEDA",color:"#854F0B",label:"Barraca"},
+  sorteio:{bg:"#EEEDFE",color:"#3C3489",label:"Sorteio"},
+  gremio:{bg:"#EAF3DE",color:"#27500A",label:"Grêmio"},
+  alimentacao:{bg:"#E1F5EE",color:"#085041",label:"Alimentação"},
+  material:{bg:"#E6F1FB",color:"#0C447C",label:"Material"},
+  servico:{bg:"#FAEEDA",color:"#854F0B",label:"Serviço"},
+  decoracao:{bg:"#EAF3DE",color:"#166534",label:"Decoração"},
+  premio:{bg:"#FCE7F3",color:"#9D174D",label:"Prêmio"},
+  outro:{bg:"#F1EFE8",color:"#444441",label:"Outro"},
+};
+const badge=t=>{const s=TBADGE[t]||TBADGE.outro;return`<span class="badge" style="background:${s.bg};color:${s.color};">${s.label}</span>`;};
+const gastoOpts=sel=>["alimentacao","material","decoracao","servico","premio","outro"].map(t=>`<option value="${t}"${t===sel?" selected":""}>${TBADGE[t].label}</option>`).join("");
+
+/* ══════════════════════════════════════════════════
+   PERSISTÊNCIA — localStorage
+   Salva automaticamente a cada alteração.
+   Os dados ficam gravados no navegador mesmo
+   após fechar a página.
+══════════════════════════════════════════════════ */
+const STORAGE_KEY="apm_festa_junina_2026_v4";
+
+function loadData(){
+  try{
+    const raw=localStorage.getItem(STORAGE_KEY);
+    if(raw){
+      const d=JSON.parse(raw);
+      if(Array.isArray(d.rec)&&Array.isArray(d.gas)){
+        return{rec:d.rec,gas:d.gas,nextId:d.nextId||500,savedAt:d.savedAt||null};
+      }
+    }
+  }catch(e){console.warn("Erro ao carregar dados salvos:",e);}
+  return{rec:JSON.parse(JSON.stringify(RECEITAS_INIT)),gas:JSON.parse(JSON.stringify(GASTOS_INIT)),nextId:500,savedAt:null};
+}
+
+function saveData(){
+  try{
+    const payload={rec:S.rec,gas:S.gas,nextId:S.nextId,savedAt:new Date().toISOString()};
+    localStorage.setItem(STORAGE_KEY,JSON.stringify(payload));
+    S.lastSave=nowTime();
+    const el=document.getElementById("save-ind");
+    if(el) el.innerHTML=`💾 Salvo às ${S.lastSave}`;
+    return true;
+  }catch(e){
+    console.error("Erro ao salvar:",e);
+    toast("⚠ Erro ao salvar dados no navegador","#C0392B");
+    return false;
+  }
+}
+
+/* backup em arquivo JSON */
+function backupJSON(){
+  const payload={rec:S.rec,gas:S.gas,exportadoEm:new Date().toISOString()};
+  const blob=new Blob([JSON.stringify(payload,null,2)],{type:"application/json"});
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(blob);
+  a.download="Backup_FestaJunina2026_"+new Date().toISOString().slice(0,10)+".json";
+  a.click();
+  toast("✅ Backup JSON baixado!");
+}
+function restoreJSON(file){
+  const rd=new FileReader();
+  rd.onload=()=>{
+    try{
+      const d=JSON.parse(rd.result);
+      if(Array.isArray(d.rec)&&Array.isArray(d.gas)){
+        S.rec=d.rec;S.gas=d.gas;
+        saveData();render();
+        toast("✅ Backup restaurado com sucesso!");
+      }else toast("Arquivo de backup inválido","#C0392B");
+    }catch{toast("Erro ao ler o arquivo","#C0392B");}
+  };
+  rd.readAsText(file);
+}
+function resetData(){
+  if(confirm("Isso vai APAGAR todos os dados salvos e voltar aos dados originais da festa. Deseja continuar?")){
+    localStorage.removeItem(STORAGE_KEY);
+    const d=loadData();
+    S.rec=d.rec;S.gas=d.gas;S.nextId=d.nextId;
+    saveData();render();
+    toast("Dados restaurados ao original");
+  }
+}
+
+/* ══════════════════════════════════════════════════
+   ESTADO
+══════════════════════════════════════════════════ */
+const loaded=loadData();
+let S={
+  tab:"resumo",
+  rec:loaded.rec,
+  gas:loaded.gas,
+  nextId:loaded.nextId,
+  lastSave:loaded.savedAt?new Date(loaded.savedAt).toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"}):null,
+  erI:null,erD:null,egI:null,egD:null,
+  nr:{responsavel:"",data:"",receitaBruta:"",pct:25,tipo:"barraca"},
+  ng:{desc:"",forn:"",data:"",valor:"",tipo:"alimentacao"},
+  proc:0,
+};
+let charts={};
+
+const tots=()=>{
+  const apm=r2(S.rec.reduce((a,r)=>a+r.apm,0));
+  const bruta=r2(S.rec.reduce((a,r)=>a+r.receitaBruta,0));
+  const parc=r2(S.rec.reduce((a,r)=>a+r.parceiro,0));
+  const gas=r2(S.gas.reduce((a,g)=>a+g.valor,0));
+  return{apm,bruta,parc,gas,saldo:r2(apm-gas)};
+};
+
+function bandeirolas(){
+  const c=["#E24B4A","#EF9F27","#1D9E75","#378ADD","#7F77DD","#D85A30"];
+  let s=`<svg width="100%" height="30" style="display:block;overflow:hidden"><line x1="0" y1="3" x2="100%" y2="3" stroke="rgba(0,0,0,0.12)" stroke-width="0.8"/>`;
+  for(let i=0;i<20;i++) s+=`<polygon points="${i*40+3},1 ${i*40+37},1 ${i*40+20},27" fill="${c[i%6]}" opacity="0.88"/>`;
+  return s+"</svg>";
+}
+
+const fv=v=>{
+  if(!v||v===0) return "";
+  const a=Math.abs(v);
+  if(a>=1000) return (v<0?"-":"")+"R$ "+(a/1000).toLocaleString("pt-BR",{minimumFractionDigits:1,maximumFractionDigits:1})+" mil";
+  return "R$ "+v.toFixed(0);
+};
+
+/* ══════════════════════════════════════════════════
+   TAB: RESUMO
+══════════════════════════════════════════════════ */
+function renderResumo(t){
+  const byTRec={barraca:0,sorteio:0,gremio:0};
+  S.rec.forEach(r=>{byTRec[r.tipo]=(byTRec[r.tipo]||0)+r.apm;});
+  const byTGas={};S.gas.forEach(g=>{byTGas[g.tipo]=(byTGas[g.tipo]||0)+g.valor;});
+  const gasEnt=Object.entries(byTGas).sort((a,b)=>b[1]-a[1]);
+  const GCOL={alimentacao:"#1D9E75",material:"#378ADD",decoracao:"#3B8C28",servico:"#EF9F27",premio:"#D85A30",outro:"#888"};
+  const bd=S.rec.filter(r=>r.tipo==="barraca");
+  return`
+  <div class="stat-grid" style="margin-bottom:20px;">
+    <div class="stat-box"><div class="stat-val" style="color:#0F6E56;">${S.rec.length}</div><div class="stat-lbl">Fontes de receita</div></div>
+    <div class="stat-box"><div class="stat-val" style="color:#854F0B;">${S.rec.filter(r=>r.tipo==="barraca").length}</div><div class="stat-lbl">Barracas</div></div>
+    <div class="stat-box"><div class="stat-val" style="color:#993C1D;">${S.gas.length}</div><div class="stat-lbl">Notas de gasto</div></div>
+    <div class="stat-box"><div class="stat-val" style="color:${t.saldo>=0?"#185FA5":"#A32D2D"};">${t.saldo>=0?"Superávit":"Déficit"}</div><div class="stat-lbl">Resultado</div></div>
+  </div>
+
+  <div class="grid2" style="margin-bottom:20px;">
+    <div class="card">
+      <div class="section-title">Receita APM por categoria</div>
+      <div class="chart-legend">
+        ${Object.entries(byTRec).filter(([,v])=>v>0).map(([k,v])=>`<span><span class="ldot" style="background:${k==="barraca"?"#EF9F27":k==="sorteio"?"#7F77DD":"#68BB59"};"></span>${TBADGE[k].label} — ${BRL(v)}</span>`).join("")}
+      </div>
+      <div style="position:relative;height:210px;"><canvas id="pieR"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="section-title">Gastos por categoria</div>
+      <div class="chart-legend" style="gap:10px;">${gasEnt.map(([k,v])=>`<span style="font-size:12px;"><span class="ldot" style="width:10px;height:10px;background:${GCOL[k]||"#888"};"></span>${TBADGE[k]?.label||k} — ${BRL(v)}</span>`).join("")}</div>
+      <div style="position:relative;height:210px;"><canvas id="pieG"></canvas></div>
+    </div>
+  </div>
+
+  <!-- GRÁFICO DE BARRAS GRANDE E APRESENTÁVEL -->
+  <div class="card" style="margin-bottom:20px;padding:24px;">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px;margin-bottom:4px;">
+      <div>
+        <div style="font-size:17px;font-weight:700;color:#333;">Receita por barraca</div>
+        <div style="font-size:12px;color:#999;margin-top:2px;">Comparativo entre receita bruta, repasse à APM e parte do parceiro</div>
+      </div>
+    </div>
+    <div class="chart-legend" style="margin-top:12px;">
+      <span><span class="ldot" style="background:#EF9F27;"></span>Receita bruta</span>
+      <span><span class="ldot" style="background:#1D9E75;"></span>APM</span>
+      <span><span class="ldot" style="background:#9B59B6;"></span>Parceiro</span>
+    </div>
+    <div style="position:relative;height:${Math.max(420,bd.length*52+80)}px;margin-top:8px;"><canvas id="barR"></canvas></div>
+  </div>
+
+  <div class="card" style="padding:24px;">
+    <div style="font-size:17px;font-weight:700;color:#333;margin-bottom:4px;">Receita APM × Gastos × Saldo</div>
+    <div style="font-size:12px;color:#999;margin-bottom:12px;">Resultado financeiro consolidado da festa</div>
+    <div style="position:relative;height:260px;"><canvas id="compC"></canvas></div>
+  </div>`;
+}
+
+/* ══════════════════════════════════════════════════
+   TAB: RECEITAS
+══════════════════════════════════════════════════ */
+function renderReceitas(t){
+  const nr=S.nr;
+  const rb=parseFloat(nr.receitaBruta)||0;
+  const pct=parseFloat(nr.pct)||0;
+  const prevAPM=r2(rb*pct/100), prevParc=r2(rb*(100-pct)/100);
+  const tipoRec=["barraca","sorteio","gremio"].map(tp=>{
+    const lbl={barraca:"🏪 Barraca",sorteio:"🎟 Sorteio",gremio:"🎓 Grêmio"}[tp];
+    return`<button class="tipo-btn ${nr.tipo===tp?`active-${tp}`:""}" onclick="setNrTipo('${tp}')">${lbl}</button>`;
+  }).join("");
+  const rows=S.rec.map((r,i)=>{
+    if(S.erI===r.id){const d=S.erD;return`<tr style="background:#FFF8E8;">
+      <td><input value="${esc(d.responsavel)}" data-f="responsavel" class="er" style="width:140px;"></td>
+      <td><input value="${d.data}" data-f="data" class="er" style="width:88px;"></td>
+      <td><input type="number" value="${d.receitaBruta}" data-f="receitaBruta" class="er" style="width:88px;"></td>
+      <td><div class="pct-row"><input type="number" value="${d.pct}" data-f="pct" class="er" min="0" max="100" style="width:50px;"><input type="range" value="${d.pct}" data-f="pct" class="er" min="0" max="100"><span>%</span></div></td>
+      <td style="color:#0F6E56;font-weight:700;">${BRL(d.apm)}</td>
+      <td>${BRL(d.parceiro)}</td>
+      <td><button class="btn btn-teal" onclick="saveR()" style="padding:4px 10px;font-size:12px;margin-right:3px;">✓</button><button class="btn" onclick="cancelR()" style="padding:4px 10px;font-size:12px;">✕</button></td>
+    </tr>`;}
+    return`<tr>
+      <td><strong>${esc(r.responsavel)}</strong><br><span style="margin-top:3px;display:inline-block;">${badge(r.tipo)}</span></td>
+      <td>${r.data}</td>
+      <td style="text-align:right;">${BRL(r.receitaBruta)}</td>
+      <td style="text-align:center;">
+        <div style="display:flex;align-items:center;justify-content:center;gap:6px;">
+          <span>${r.pct}%</span>
+          <div style="width:44px;height:5px;background:#eee;border-radius:3px;overflow:hidden;"><div style="width:${r.pct}%;height:100%;background:#EF9F27;"></div></div>
+        </div>
+      </td>
+      <td style="text-align:right;color:#0F6E56;font-weight:700;">${BRL(r.apm)}</td>
+      <td style="text-align:right;color:#9B59B6;font-weight:600;">${BRL(r.parceiro)}</td>
+      <td style="white-space:nowrap;">
+        <button class="btn btn-blue" onclick="sER(${r.id})" style="padding:4px 8px;font-size:12px;margin-right:3px;" title="Editar">✎</button>
+        <button class="btn btn-coral" onclick="delR(${r.id})" style="padding:4px 8px;font-size:12px;" title="Remover">🗑</button>
+      </td>
+    </tr>`;
+  }).join("");
+  return`
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:8px;">
+    <div class="section-title" style="font-size:17px;margin:0;">Receitas — Festa Junina 2026</div>
+    <span style="background:#E1F5EE;color:#085041;padding:5px 14px;border-radius:999px;font-size:13px;font-weight:700;">Total APM: ${BRL(t.apm)}</span>
+  </div>
+
+  <div class="card card-green add-form" style="margin-bottom:20px;">
+    <div class="section-title" style="color:#085041;">➕ Adicionar nova receita</div>
+    <div style="display:grid;grid-template-columns:2fr 1fr 1fr;gap:12px;margin-bottom:12px;">
+      <div><label>Responsável / Barraca *</label><input id="nr-resp" value="${esc(nr.responsavel)}" placeholder="Ex: Pastel da Maria" oninput="S.nr.responsavel=this.value"></div>
+      <div><label>Data</label><input id="nr-data" value="${nr.data}" placeholder="DD/MM/AAAA" oninput="S.nr.data=this.value"></div>
+      <div><label>Receita bruta total (R$) *</label><input id="nr-rb" type="number" value="${nr.receitaBruta}" placeholder="0,00" step="0.01" min="0" oninput="S.nr.receitaBruta=this.value;updPreview()"></div>
+    </div>
+    <div style="margin-bottom:12px;"><label style="margin-bottom:6px;">Tipo</label><div class="tag-row">${tipoRec}</div></div>
+    <div style="margin-bottom:12px;">
+      <label>% APM sobre as vendas &nbsp;<strong style="color:#EF9F27;" id="nr-pct-lbl">${pct}%</strong> &nbsp;·&nbsp; parceiro fica com &nbsp;<strong style="color:#9B59B6;" id="nr-parc-pct-lbl">${100-pct}%</strong></label>
+      <div class="pct-row" style="margin-top:6px;">
+        <input id="nr-pct-num" type="number" value="${pct}" min="0" max="100" step="1" oninput="S.nr.pct=Math.min(100,Math.max(0,parseInt(this.value)||0));document.getElementById('nr-pct-range').value=S.nr.pct;updPreview()">
+        <input id="nr-pct-range" type="range" value="${pct}" min="0" max="100" step="1" oninput="S.nr.pct=parseInt(this.value)||0;document.getElementById('nr-pct-num').value=S.nr.pct;updPreview()">
+        <span>%</span>
+      </div>
+    </div>
+    <div class="preview-box">
+      <div class="preview-item"><div class="preview-label">Receita bruta</div><div class="preview-value" style="color:#333;" id="prev-rb">${BRL(rb)}</div></div>
+      <div style="font-size:22px;color:#ccc;">→</div>
+      <div class="preview-item"><div class="preview-label" id="prev-apm-lbl">APM recebe (${pct}%)</div><div class="preview-value" style="color:#0F6E56;" id="prev-apm">${BRL(prevAPM)}</div></div>
+      <div style="font-size:22px;color:#ccc;">+</div>
+      <div class="preview-item"><div class="preview-label" id="prev-parc-lbl">Parceiro recebe (${100-pct}%)</div><div class="preview-value" style="color:#9B59B6;" id="prev-parc">${BRL(prevParc)}</div></div>
+    </div>
+    <div style="margin-top:14px;display:flex;gap:8px;">
+      <button class="btn btn-green" onclick="addR()" style="padding:9px 24px;font-size:14px;">✓ Adicionar receita</button>
+      <button class="btn" onclick="clearNr()" style="padding:9px 16px;">Limpar</button>
+    </div>
+  </div>
+
+  <div style="overflow-x:auto;"><table>
+    <thead><tr>
+      <th>Responsável</th><th>Data</th><th style="text-align:right;">Receita bruta</th>
+      <th style="text-align:center;">% APM</th>
+      <th style="text-align:right;color:#0F6E56;">APM (R$)</th>
+      <th style="text-align:right;color:#9B59B6;">Parceiro (R$)</th>
+      <th style="width:90px;">Ações</th>
+    </tr></thead>
+    <tbody>${rows}</tbody>
+    <tfoot><tr>
+      <td colspan="2">Totais — ${S.rec.length} entradas</td>
+      <td style="text-align:right;">${BRL(t.bruta)}</td><td></td>
+      <td style="text-align:right;color:#0F6E56;">${BRL(t.apm)}</td>
+      <td style="text-align:right;color:#9B59B6;">${BRL(t.parc)}</td><td></td>
+    </tr></tfoot>
+  </table></div>`;
+}
+
+/* ══════════════════════════════════════════════════
+   TAB: GASTOS
+══════════════════════════════════════════════════ */
+function renderGastos(t){
+  const proc=S.proc>0?`<span style="background:#FAEEDA;color:#854F0B;padding:3px 10px;border-radius:999px;font-size:12px;margin-left:8px;">⏳ Processando ${S.proc}...</span>`:"";
+  const ng=S.ng;
+  const rows=S.gas.map(g=>{
+    if(S.egI===g.id){const d=S.egD;return`<tr style="background:#FFF8E8;">
+      <td><input value="${esc(d.descricao)}" data-f="descricao" class="eg" style="width:155px;"></td>
+      <td><input value="${esc(d.fornecedor)}" data-f="fornecedor" class="eg" style="width:120px;"></td>
+      <td><input value="${d.data}" data-f="data" class="eg" style="width:84px;"></td>
+      <td><input type="number" value="${d.valor}" data-f="valor" class="eg" style="width:80px;"></td>
+      <td><select data-f="tipo" class="eg" style="width:100px;">${gastoOpts(d.tipo)}</select></td>
+      <td><button class="btn btn-teal" onclick="saveG()" style="padding:4px 10px;font-size:12px;margin-right:3px;">✓</button><button class="btn" onclick="cancelG()" style="padding:4px 10px;font-size:12px;">✕</button></td>
+    </tr>`;}
+    return`<tr>
+      <td style="max-width:220px;"><div>${esc(g.descricao)}</div><div style="font-size:10px;color:#aaa;margin-top:2px;">${esc(g.origem||"")}</div></td>
+      <td style="color:#666;font-size:12px;">${esc(g.fornecedor)}</td>
+      <td style="white-space:nowrap;">${g.data}</td>
+      <td style="text-align:right;color:#993C1D;font-weight:700;white-space:nowrap;">${BRL(g.valor)}</td>
+      <td>${badge(g.tipo)}</td>
+      <td style="white-space:nowrap;">
+        <button class="btn btn-blue" onclick="sEG('${g.id}')" style="padding:4px 8px;font-size:12px;margin-right:3px;" title="Editar">✎</button>
+        <button class="btn btn-coral" onclick="delG('${g.id}')" style="padding:4px 8px;font-size:12px;" title="Remover">🗑</button>
+      </td>
+    </tr>`;
+  }).join("");
+  return`
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:8px;">
+    <div class="section-title" style="font-size:17px;margin:0;">Gastos da Festa${proc}</div>
+    <span style="background:#FAECE7;color:#712B13;padding:5px 14px;border-radius:999px;font-size:13px;font-weight:700;">${S.gas.length} notas · ${BRL(t.gas)}</span>
+  </div>
+  <div class="grid2" style="margin-bottom:20px;">
+    <div class="card card-amber">
+      <div class="section-title" style="color:#854F0B;">📸 Processar recibo pela IA</div>
+      <div class="upload-zone" onclick="document.getElementById('fi').click()" ondragover="event.preventDefault();" ondrop="event.preventDefault();hF(event.dataTransfer.files);">
+        <div style="font-size:28px;margin-bottom:6px;">📷</div>
+        <div style="font-size:13px;color:#854F0B;font-weight:600;">Clique ou arraste o recibo aqui</div>
+        <div style="font-size:11px;color:#999;margin-top:4px;">JPG ou PDF — dados extraídos automaticamente</div>
+      </div>
+      <input id="fi" type="file" accept="image/*,application/pdf" multiple style="display:none;" onchange="hF(this.files)">
+    </div>
+    <div class="card">
+      <div class="section-title">➕ Lançamento manual</div>
+      <div style="display:grid;gap:8px;">
+        <div><label>Descrição *</label><input id="nd" value="${esc(ng.desc)}" placeholder="Ex: Decorações juninas" oninput="S.ng.desc=this.value"></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+          <div><label>Fornecedor</label><input id="nf" value="${esc(ng.forn)}" placeholder="Loja/pessoa" oninput="S.ng.forn=this.value"></div>
+          <div><label>Data</label><input id="ndt" value="${ng.data}" placeholder="DD/MM/AAAA" oninput="S.ng.data=this.value"></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+          <div><label>Valor (R$) *</label><input id="nv" type="number" value="${ng.valor}" step="0.01" placeholder="0,00" oninput="S.ng.valor=this.value"></div>
+          <div><label>Tipo</label><select id="nt" onchange="S.ng.tipo=this.value">${gastoOpts(ng.tipo)}</select></div>
+        </div>
+        <button class="btn btn-teal" onclick="addM()" style="width:100%;padding:9px;font-size:13px;font-weight:600;">✓ Adicionar lançamento</button>
+      </div>
+    </div>
+  </div>
+  <div style="overflow-x:auto;"><table>
+    <thead><tr><th>Descrição</th><th>Fornecedor</th><th>Data</th><th style="text-align:right;">Valor</th><th>Tipo</th><th style="width:80px;">Ações</th></tr></thead>
+    <tbody>${rows}</tbody>
+    <tfoot><tr><td colspan="3">Total — ${S.gas.length} lançamentos</td><td style="text-align:right;color:#993C1D;">${BRL(t.gas)}</td><td colspan="2"></td></tr></tfoot>
+  </table></div>`;
+}
+
+/* ══════════════════════════════════════════════════
+   TAB: CONSOLIDADO
+══════════════════════════════════════════════════ */
+function renderConsolidado(t){
+  const ok=t.saldo>=0;
+  const byT={};S.gas.forEach(g=>{byT[g.tipo]=(byT[g.tipo]||0)+g.valor;});
+  const tRows=Object.entries(byT).sort((a,b)=>b[1]-a[1]).map(([k,v])=>
+    `<tr><td style="padding:6px 12px;">${badge(k)}</td><td style="padding:6px 12px;text-align:right;color:#993C1D;font-weight:700;">${BRL(v)}</td><td style="padding:6px 12px;font-size:12px;color:#777;">${((v/t.gas)*100).toFixed(1)}%</td></tr>`
+  ).join("");
+  const rR=S.rec.map((r,i)=>`<tr style="background:${i%2===0?"#fff":"#FAFAF5"}">
+    <td>${esc(r.responsavel)} ${badge(r.tipo)}</td><td>${r.data}</td>
+    <td style="text-align:right;">${BRL(r.receitaBruta)}</td>
+    <td style="text-align:center;">${r.pct}%</td>
+    <td style="text-align:right;color:#9B59B6;font-weight:600;">${BRL(r.parceiro)}</td>
+    <td style="text-align:right;color:#0F6E56;font-weight:700;">${BRL(r.apm)}</td>
+  </tr>`).join("");
+  const gR=S.gas.map((g,i)=>`<tr style="background:${i%2===0?"#fff":"#FAFAF5"}">
+    <td><div>${esc(g.descricao)}</div><div style="font-size:10px;color:#aaa;">${esc(g.origem||"")}</div></td>
+    <td style="font-size:12px;color:#666;">${esc(g.fornecedor)}</td>
+    <td style="white-space:nowrap;">${g.data}</td>
+    <td style="text-align:right;color:#993C1D;font-weight:700;white-space:nowrap;">${BRL(g.valor)}</td>
+    <td>${badge(g.tipo)}</td>
+  </tr>`).join("");
+  return`
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:8px;">
+    <div style="font-size:17px;font-weight:700;">Balanço Consolidado</div>
+    <span style="font-size:12px;color:#888;">APM ITB Brasílio Flores de Azevedo · Festa Junina 12–15/06/2026</span>
+  </div>
+  <div class="grid2" style="margin-bottom:20px;">
+    <div class="card" style="background:${ok?"#E1F5EE":"#FAECE7"};border:1px solid ${ok?"#9FE1CB":"#F5C4B3"};">
+      <div style="font-size:14px;font-weight:700;margin-bottom:14px;color:${ok?"#085041":"#712B13"};">Resultado final — ${ok?"✅ Superávit":"⚠️ Déficit"}</div>
+      <div class="grid3">
+        <div><div style="font-size:11px;color:#666;margin-bottom:3px;">Total APM</div><div style="font-size:20px;font-weight:700;color:#0F6E56;">${BRL(t.apm)}</div></div>
+        <div><div style="font-size:11px;color:#666;margin-bottom:3px;">Total gastos</div><div style="font-size:20px;font-weight:700;color:#993C1D;">${BRL(t.gas)}</div></div>
+        <div><div style="font-size:11px;color:#666;margin-bottom:3px;">Saldo</div><div style="font-size:24px;font-weight:700;color:${ok?"#085041":"#712B13"};">${BRL(t.saldo)}</div></div>
+      </div>
+      <div style="margin-top:14px;padding-top:12px;border-top:1px solid ${ok?"#9FE1CB":"#F5C4B3"};font-size:12px;color:#666;">
+        Receita bruta total: <strong>${BRL(t.bruta)}</strong> · Parceiros: <strong>${BRL(t.parc)}</strong>
+      </div>
+    </div>
+    <div class="card"><div style="font-size:14px;font-weight:700;margin-bottom:10px;">Gastos por tipo</div><table style="border:none;">${tRows}</table></div>
+  </div>
+
+  <div class="card" style="margin-bottom:20px;">
+    <div style="font-size:14px;font-weight:700;color:#085041;padding-bottom:8px;border-bottom:1px solid #9FE1CB;margin-bottom:12px;">📈 Receitas — ${S.rec.length} entradas</div>
+    <div style="overflow-x:auto;"><table style="border:none;">
+      <thead><tr style="background:#E1F5EE;"><th>Fonte / Barraca</th><th>Data</th><th style="text-align:right;">Receita bruta</th><th style="text-align:center;">% APM</th><th style="text-align:right;color:#9B59B6;">Parceiros</th><th style="text-align:right;color:#0F6E56;">APM</th></tr></thead>
+      <tbody>${rR}</tbody>
+      <tfoot style="background:#E1F5EE;"><tr><td colspan="2">Total receitas</td><td style="text-align:right;">${BRL(t.bruta)}</td><td></td><td style="text-align:right;color:#9B59B6;">${BRL(t.parc)}</td><td style="text-align:right;color:#0F6E56;">${BRL(t.apm)}</td></tr></tfoot>
+    </table></div>
+  </div>
+
+  <div class="card">
+    <div style="font-size:14px;font-weight:700;color:#712B13;padding-bottom:8px;border-bottom:1px solid #F5C4B3;margin-bottom:12px;">📉 Gastos — ${S.gas.length} notas fiscais</div>
+    <div style="overflow-x:auto;"><table style="border:none;">
+      <thead><tr style="background:#FAECE7;"><th>Descrição</th><th>Fornecedor</th><th>Data</th><th style="text-align:right;">Valor</th><th>Tipo</th></tr></thead>
+      <tbody>${gR}</tbody>
+      <tfoot style="background:#FAECE7;"><tr><td colspan="3">Total gastos</td><td style="text-align:right;color:#993C1D;">${BRL(t.gas)}</td><td></td></tr></tfoot>
+    </table></div>
+  </div>`;
+}
+
+/* ══════════════════════════════════════════════════
+   BIND HANDLERS
+══════════════════════════════════════════════════ */
+function bindER(){
+  document.querySelectorAll(".er").forEach(el=>el.addEventListener("input",e=>{
+    const f=e.target.dataset.f;
+    const v=(e.target.type==="number"||e.target.type==="range")?parseFloat(e.target.value)||0:e.target.value;
+    S.erD={...S.erD,[f]:v};
+    if(f==="pct") document.querySelectorAll(`.er[data-f="pct"]`).forEach(x=>{if(x!==e.target)x.value=v;});
+    if(f==="receitaBruta"||f==="pct"){S.erD.apm=r2(S.erD.receitaBruta*S.erD.pct/100);S.erD.parceiro=r2(S.erD.receitaBruta*(100-S.erD.pct)/100);}
+  }));
+}
+function bindEG(){
+  document.querySelectorAll(".eg").forEach(el=>el.addEventListener("input",e=>{
+    const f=e.target.dataset.f;
+    S.egD={...S.egD,[f]:e.target.type==="number"?parseFloat(e.target.value)||0:e.target.value};
+  }));
+}
+
+/* ══════════════════════════════════════════════════
+   RENDER
+══════════════════════════════════════════════════ */
+function render(){
+  const t=tots(),ok=t.saldo>=0;
+  const tabs=[{id:"resumo",l:"📊 Resumo"},{id:"receitas",l:"💰 Receitas"},{id:"gastos",l:"🧾 Gastos"},{id:"consolidado",l:"📄 Consolidado"}];
+  let content="";
+  if(S.tab==="resumo") content=renderResumo(t);
+  else if(S.tab==="receitas") content=renderReceitas(t);
+  else if(S.tab==="gastos") content=renderGastos(t);
+  else content=renderConsolidado(t);
+  document.getElementById("app").innerHTML=`
+  <div class="header">
+    <div class="header-top">
+      <div class="header-info">
+        <div style="font-size:32px;">🎪</div>
+        <div>
+          <div class="header-title">Festa Junina 2026 — APM ITB</div>
+          <div class="header-sub">Escola Brasílio Flores de Azevedo · Balanço geral</div>
+        </div>
+      </div>
+      <div class="export-btns">
+        <span class="save-indicator" id="save-ind">${S.lastSave?"💾 Salvo às "+S.lastSave:"💾 Salvamento automático ativo"}</span>
+        <button class="btn btn-xlsx" onclick="exportXLSX()" style="padding:8px 16px;font-size:13px;font-weight:600;">⬇ Excel</button>
+        <button class="btn btn-pdf" onclick="exportPDF()" style="padding:8px 16px;font-size:13px;font-weight:600;">⬇ PDF</button>
+        <button class="btn btn-ghost" onclick="backupJSON()" title="Baixar backup dos dados">💾 Backup</button>
+        <button class="btn btn-ghost" onclick="document.getElementById('restoreInput').click()" title="Restaurar de backup">📂 Restaurar</button>
+        <button class="btn btn-ghost" onclick="resetData()" title="Voltar aos dados originais">↺ Resetar</button>
+        <input id="restoreInput" type="file" accept="application/json" style="display:none;" onchange="if(this.files[0])restoreJSON(this.files[0])">
+      </div>
+    </div>
+    ${bandeirolas()}
+  </div>
+  <div class="summary">
+    <div class="scard" style="border-color:#1D9E75;">
+      <div class="scard-label">Receita APM</div>
+      <div class="scard-value" style="color:#0F6E56;">${BRL(t.apm)}</div>
+      <div class="scard-sub">Bruto: ${BRL(t.bruta)} · Parceiros: ${BRL(t.parc)}</div>
+    </div>
+    <div class="scard" style="border-color:#D85A30;">
+      <div class="scard-label">Total Gastos</div>
+      <div class="scard-value" style="color:#993C1D;">${BRL(t.gas)}</div>
+      <div class="scard-sub">${S.gas.length} notas fiscais</div>
+    </div>
+    <div class="scard" style="border-color:${ok?"#378ADD":"#E24B4A"};">
+      <div class="scard-label">Saldo Final</div>
+      <div class="scard-value" style="color:${ok?"#185FA5":"#A32D2D"};">${BRL(t.saldo)}</div>
+      <div class="scard-sub">${ok?"✅ Superávit":"⚠️ Déficit"}</div>
+    </div>
+  </div>
+  <div class="tabs">${tabs.map(tb=>`<button class="tab${S.tab===tb.id?" active":""}" onclick="sT('${tb.id}')">${tb.l}</button>`).join("")}</div>
+  <div class="content">${content}</div>`;
+  bindER();bindEG();
+  if(S.tab==="resumo") setTimeout(drawCharts,50);
+}
+
+/* ══════════════════════════════════════════════════
+   GRÁFICOS — BARRAS MAIORES E MAIS APRESENTÁVEIS
+══════════════════════════════════════════════════ */
+function drawCharts(){
+  Object.values(charts).forEach(c=>{try{c.destroy();}catch{}});charts={};
+  Chart.register(ChartDataLabels);
+  Chart.defaults.font.family="'Segoe UI',Arial,sans-serif";
+
+  /* — Pizza Receitas — */
+  const byTRec={};S.rec.forEach(r=>{byTRec[r.tipo]=(byTRec[r.tipo]||0)+r.apm;});
+  const pieREntries=Object.entries(byTRec).filter(([,v])=>v>0);
+  const pieRCols={"barraca":"#EF9F27","sorteio":"#7F77DD","gremio":"#68BB59"};
+  const peEl=document.getElementById("pieR");
+  if(peEl) charts.pieR=new Chart(peEl,{type:"doughnut",data:{
+    labels:pieREntries.map(([k])=>TBADGE[k].label),
+    datasets:[{data:pieREntries.map(([,v])=>v),backgroundColor:pieREntries.map(([k])=>pieRCols[k]||"#aaa"),borderWidth:3,borderColor:"#fff"}]
+  },options:{responsive:true,maintainAspectRatio:false,cutout:"55%",plugins:{
+    legend:{display:false},
+    tooltip:{callbacks:{label:c=>" "+BRL(c.raw)+" ("+((c.raw/pieREntries.reduce((a,[,v])=>a+v,0))*100).toFixed(1)+"%)"}},
+    datalabels:{color:"#fff",font:{weight:"bold",size:12},formatter:(v)=>{
+      const tot=pieREntries.reduce((a,[,x])=>a+x,0);const pct=(v/tot)*100;
+      return pct>8?pct.toFixed(0)+"%":"";
+    }}
+  }}});
+
+  /* — Pizza Gastos — */
+  const byTGas={};S.gas.forEach(g=>{byTGas[g.tipo]=(byTGas[g.tipo]||0)+g.valor;});
+  const GCOL={alimentacao:"#1D9E75",material:"#378ADD",decoracao:"#3B8C28",servico:"#EF9F27",premio:"#D85A30",outro:"#888"};
+  const gasEnt=Object.entries(byTGas).sort((a,b)=>b[1]-a[1]);
+  const pgEl=document.getElementById("pieG");
+  if(pgEl) charts.pieG=new Chart(pgEl,{type:"doughnut",data:{
+    labels:gasEnt.map(([k])=>TBADGE[k]?.label||k),
+    datasets:[{data:gasEnt.map(([,v])=>r2(v)),backgroundColor:gasEnt.map(([k])=>GCOL[k]||"#888"),borderWidth:3,borderColor:"#fff"}]
+  },options:{responsive:true,maintainAspectRatio:false,cutout:"55%",plugins:{
+    legend:{display:false},
+    tooltip:{callbacks:{label:c=>" "+BRL(c.raw)}},
+    datalabels:{color:"#fff",font:{weight:"bold",size:12},formatter:(v)=>{
+      const tot=gasEnt.reduce((a,[,x])=>a+x,0);const pct=(v/tot)*100;
+      return pct>8?pct.toFixed(0)+"%":"";
+    }}
+  }}});
+
+  /* — BARRAS GRANDES: Receita por barraca —
+     Barras mais espessas, mais espaçamento, valores fixos
+     grandes ao lado de cada barra, ordenado por receita */
+  const bd=[...S.rec.filter(r=>r.tipo==="barraca")].sort((a,b)=>b.receitaBruta-a.receitaBruta);
+  const brEl=document.getElementById("barR");
+  if(brEl) charts.barR=new Chart(brEl,{type:"bar",data:{
+    labels:bd.map(r=>r.responsavel.length>22?r.responsavel.substring(0,20)+"…":r.responsavel),
+    datasets:[
+      {label:"Receita bruta",data:bd.map(r=>r.receitaBruta),backgroundColor:"#EF9F27",borderRadius:5,barPercentage:0.85,categoryPercentage:0.78},
+      {label:"APM",data:bd.map(r=>r2(r.apm)),backgroundColor:"#1D9E75",borderRadius:5,barPercentage:0.85,categoryPercentage:0.78},
+      {label:"Parceiro",data:bd.map(r=>r2(r.parceiro)),backgroundColor:"#9B59B6",borderRadius:5,barPercentage:0.85,categoryPercentage:0.78},
+    ]
+  },options:{
+    indexAxis:"y",responsive:true,maintainAspectRatio:false,
+    layout:{padding:{right:110,top:6,bottom:6}},
+    plugins:{
+      legend:{display:false},
+      tooltip:{
+        padding:12,titleFont:{size:14,weight:"bold"},bodyFont:{size:13},
+        callbacks:{label:c=>" "+c.dataset.label+": "+BRL(c.raw)}
+      },
+      datalabels:{
+        anchor:"end",align:"right",clamp:false,clip:false,
+        formatter:v=>v>0?fv(v):"",
+        font:{weight:"bold",size:12},
+        color:ctx=>["#BA7517","#0F6E56","#6C3483"][ctx.datasetIndex]||"#333",
+        padding:{left:6}
+      }
+    },
+    scales:{
+      x:{
+        grid:{color:"rgba(0,0,0,0.06)"},
+        ticks:{font:{size:12},callback:v=>fv(v),color:"#888"},
+        border:{display:false}
+      },
+      y:{
+        grid:{display:false},
+        ticks:{font:{size:13,weight:"600"},color:"#444"},
+        border:{display:false}
+      }
+    }
+  }});
+
+  /* — Comparativo grande com valores fixos — */
+  const t=tots();
+  const ccEl=document.getElementById("compC");
+  const compColors=["#1D9E75","#D85A30",t.saldo>=0?"#378ADD":"#E24B4A"];
+  if(ccEl) charts.compC=new Chart(ccEl,{type:"bar",data:{
+    labels:["Receita APM","Total Gastos","Saldo Final"],
+    datasets:[{data:[t.apm,t.gas,t.saldo],backgroundColor:compColors,borderRadius:8,barPercentage:0.55}]
+  },options:{
+    responsive:true,maintainAspectRatio:false,
+    layout:{padding:{top:38}},
+    plugins:{
+      legend:{display:false},
+      tooltip:{padding:12,callbacks:{label:c=>" "+BRL(c.raw)}},
+      datalabels:{
+        anchor:"end",align:"top",clamp:false,
+        formatter:v=>BRL(v),
+        font:{weight:"bold",size:14},
+        color:ctx=>compColors[ctx.dataIndex]
+      }
+    },
+    scales:{
+      x:{grid:{display:false},ticks:{font:{size:13,weight:"600"},color:"#444"},border:{display:false}},
+      y:{grid:{color:"rgba(0,0,0,0.06)"},ticks:{font:{size:12},callback:v=>fv(v),color:"#888"},border:{display:false}}
+    }
+  }});
+}
+
+/* ══════════════════════════════════════════════════
+   EXPORTAR PDF
+══════════════════════════════════════════════════ */
+window.exportPDF=function(){
+  try{
+    const {jsPDF}=window.jspdf;
+    if(!jsPDF){toast("Biblioteca PDF não carregada","#C0392B");return;}
+    const doc=new jsPDF({orientation:"portrait",unit:"mm",format:"a4"});
+    const t=tots();const ok=t.saldo>=0;
+    const W=doc.internal.pageSize.getWidth();
+    doc.setFillColor(250,238,218);doc.rect(0,0,W,35,"F");
+    doc.setFontSize(18);doc.setFont("helvetica","bold");doc.setTextColor(133,79,11);
+    doc.text("FESTA JUNINA 2026 — APM ITB",W/2,14,{align:"center"});
+    doc.setFontSize(10);doc.setFont("helvetica","normal");doc.setTextColor(186,117,23);
+    doc.text("Escola Brasílio Flores de Azevedo · Balanço Geral · Gerado em "+now(),W/2,21,{align:"center"});
+    const cols=["#E24B4A","#EF9F27","#1D9E75","#378ADD","#7F77DD","#D85A30"];
+    for(let i=0;i<Math.ceil(W/8);i++){const c=cols[i%6];const h=c.match(/\w\w/g).map(x=>parseInt(x,16));doc.setFillColor(h[0],h[1],h[2]);doc.triangle(i*8,28,(i+1)*8,28,i*8+4,35,"F");}
+    let y=42;
+    const cards=[
+      {label:"Receita APM",value:BRL(t.apm),sub:"Bruto: "+BRL(t.bruta),c:[30,158,117]},
+      {label:"Total Gastos",value:BRL(t.gas),sub:S.gas.length+" notas",c:[216,90,48]},
+      {label:"Saldo Final",value:BRL(t.saldo),sub:ok?"SUPERÁVIT":"DÉFICIT",c:ok?[55,138,221]:[226,75,74]},
+    ];
+    const cw=(W-20)/3;
+    cards.forEach((cd,i)=>{
+      const x=10+i*cw;
+      doc.setFillColor(250,250,250);doc.roundedRect(x,y,cw-3,20,2,2,"F");
+      doc.setDrawColor(cd.c[0],cd.c[1],cd.c[2]);doc.setLineWidth(0.5);doc.roundedRect(x,y,cw-3,20,2,2,"S");
+      doc.setFillColor(cd.c[0],cd.c[1],cd.c[2]);doc.rect(x,y,1.5,20,"F");
+      doc.setFontSize(8);doc.setFont("helvetica","normal");doc.setTextColor(100,100,100);doc.text(cd.label.toUpperCase(),x+4,y+6);
+      doc.setFontSize(13);doc.setFont("helvetica","bold");doc.setTextColor(cd.c[0],cd.c[1],cd.c[2]);doc.text(cd.value,x+4,y+13);
+      doc.setFontSize(8);doc.setFont("helvetica","normal");doc.setTextColor(140,140,140);doc.text(cd.sub,x+4,y+18);
+    });
+    y+=28;
+    doc.setFontSize(12);doc.setFont("helvetica","bold");doc.setTextColor(8,80,65);doc.text("RECEITAS",10,y);y+=3;
+    doc.autoTable({
+      startY:y,
+      head:[["Responsável / Barraca","Data","Tipo","Receita Bruta","% APM","APM (R$)","Parceiro (R$)"]],
+      body:S.rec.map(r=>[r.responsavel,r.data,TBADGE[r.tipo]?.label||r.tipo,BRL(r.receitaBruta),r.pct+"%",BRL(r.apm),BRL(r.parceiro)]),
+      foot:[["TOTAIS ("+S.rec.length+" entradas)","","",BRL(t.bruta),"",BRL(t.apm),BRL(t.parc)]],
+      theme:"grid",styles:{fontSize:8,cellPadding:2.5,overflow:"linebreak"},
+      headStyles:{fillColor:[30,158,117],textColor:255,fontStyle:"bold",fontSize:8},
+      footStyles:{fillColor:[225,245,238],fontStyle:"bold",textColor:[8,80,65]},
+      columnStyles:{0:{cellWidth:52},1:{cellWidth:18},2:{cellWidth:18},3:{cellWidth:22,halign:"right"},4:{cellWidth:12,halign:"center"},5:{cellWidth:22,halign:"right"},6:{cellWidth:22,halign:"right"}},
+      alternateRowStyles:{fillColor:[250,254,252]},
+    });
+    doc.setFontSize(12);doc.setFont("helvetica","bold");doc.setTextColor(153,60,29);doc.text("GASTOS",10,doc.lastAutoTable.finalY+8);
+    doc.autoTable({
+      startY:doc.lastAutoTable.finalY+11,
+      head:[["Descrição","Fornecedor","Data","Valor (R$)","Tipo"]],
+      body:S.gas.map(g=>[g.descricao.substring(0,60)+(g.descricao.length>60?"…":""),g.fornecedor.substring(0,35),g.data,BRL(g.valor),TBADGE[g.tipo]?.label||g.tipo]),
+      foot:[["TOTAL GASTOS ("+S.gas.length+" lançamentos)","","",BRL(t.gas),""]],
+      theme:"grid",styles:{fontSize:8,cellPadding:2.5,overflow:"linebreak"},
+      headStyles:{fillColor:[216,90,48],textColor:255,fontStyle:"bold",fontSize:8},
+      footStyles:{fillColor:[250,236,231],fontStyle:"bold",textColor:[153,60,29]},
+      columnStyles:{0:{cellWidth:68},1:{cellWidth:42},2:{cellWidth:18},3:{cellWidth:24,halign:"right"},4:{cellWidth:18}},
+      alternateRowStyles:{fillColor:[255,252,250]},
+    });
+    const fy=doc.lastAutoTable.finalY+10;
+    if(fy>260) doc.addPage();
+    const ry=fy>260?20:fy;
+    const rc=ok?[30,158,117]:[226,75,74];
+    doc.setFillColor(ok?225:250,ok?245:236,ok?238:231);doc.roundedRect(10,ry,W-20,22,3,3,"F");
+    doc.setDrawColor(rc[0],rc[1],rc[2]);doc.setLineWidth(0.8);doc.roundedRect(10,ry,W-20,22,3,3,"S");
+    doc.setFontSize(10);doc.setFont("helvetica","bold");doc.setTextColor(rc[0],rc[1],rc[2]);
+    doc.text("RESULTADO FINAL: "+(ok?"SUPERÁVIT":"DÉFICIT"),14,ry+7);
+    doc.setFontSize(9);doc.setFont("helvetica","normal");doc.setTextColor(60,60,60);
+    doc.text("Receita APM: "+BRL(t.apm)+"   |   Gastos: "+BRL(t.gas)+"   |   Saldo: "+BRL(t.saldo),14,ry+14);
+    doc.setFontSize(8);doc.setTextColor(170,170,170);
+    doc.text("APM ITB Brasílio Flores de Azevedo · Gerado em "+now(),W/2,ry+20,{align:"center"});
+    doc.save("Balanco_FestaJunina2026_APM_ITB.pdf");
+    toast("✅ PDF exportado com sucesso!");
+  }catch(e){console.error(e);toast("Erro ao gerar PDF: "+e.message,"#C0392B");}
+};
+
+/* ══════════════════════════════════════════════════
+   EXPORTAR XLSX
+══════════════════════════════════════════════════ */
+window.exportXLSX=function(){
+  try{
+    if(typeof XLSX==="undefined"){toast("Biblioteca Excel não carregada","#C0392B");return;}
+    const t=tots();const wb=XLSX.utils.book_new();
+    const recRows=[
+      ["RECEITAS — FESTA JUNINA 2026 · APM ITB","","","","","",""],
+      ["Escola Brasílio Flores de Azevedo · Gerado em "+now(),"","","","","",""],
+      [],
+      ["Responsável / Barraca","Data","Tipo","Receita Bruta (R$)","% APM","APM (R$)","Parceiro (R$)"],
+      ...S.rec.map(r=>[r.responsavel,r.data,TBADGE[r.tipo]?.label||r.tipo,r.receitaBruta,r.pct/100,r.apm,r.parceiro]),
+      [],
+      ["TOTAIS","","",t.bruta,"",t.apm,t.parc],
+    ];
+    const wsRec=XLSX.utils.aoa_to_sheet(recRows);
+    wsRec["!cols"]=[{wch:42},{wch:12},{wch:12},{wch:18},{wch:10},{wch:18},{wch:18}];
+    for(let i=4;i<4+S.rec.length;i++){
+      ["3","5","6"].forEach(c=>{const cell=XLSX.utils.encode_cell({r:i,c:parseInt(c)});if(wsRec[cell])wsRec[cell].z='#,##0.00';});
+      const p=XLSX.utils.encode_cell({r:i,c:4});if(wsRec[p])wsRec[p].z="0%";
+    }
+    XLSX.utils.book_append_sheet(wb,wsRec,"Receitas");
+    const gasRows=[
+      ["GASTOS — FESTA JUNINA 2026 · APM ITB","","","","",""],
+      ["Escola Brasílio Flores de Azevedo · Gerado em "+now(),"","","","",""],
+      [],
+      ["Descrição","Fornecedor","Data","Valor (R$)","Tipo","Origem NF"],
+      ...S.gas.map(g=>[g.descricao,g.fornecedor,g.data,g.valor,TBADGE[g.tipo]?.label||g.tipo,g.origem||""]),
+      [],
+      ["TOTAL GASTOS","","",t.gas,"",""],
+    ];
+    const wsGas=XLSX.utils.aoa_to_sheet(gasRows);
+    wsGas["!cols"]=[{wch:55},{wch:40},{wch:12},{wch:18},{wch:14},{wch:22}];
+    for(let i=4;i<4+S.gas.length;i++){const c=XLSX.utils.encode_cell({r:i,c:3});if(wsGas[c])wsGas[c].z='#,##0.00';}
+    XLSX.utils.book_append_sheet(wb,wsGas,"Gastos");
+    const byT2={};S.gas.forEach(g=>{byT2[g.tipo]=(byT2[g.tipo]||0)+g.valor;});
+    const resRows=[
+      ["BALANÇO CONSOLIDADO — FESTA JUNINA 2026 · APM ITB",""],
+      ["Escola Brasílio Flores de Azevedo · Gerado em "+now(),""],
+      [],
+      ["RECEITAS",""],
+      ["Receita bruta total",t.bruta],
+      ["Receita APM total",t.apm],
+      ["Total parceiros",t.parc],
+      [],
+      ["GASTOS",""],
+      ["Total de gastos",t.gas],
+      ["Número de notas",S.gas.length],
+      [],
+      ["RESULTADO",""],
+      ["Saldo final",t.saldo],
+      ["Resultado",t.saldo>=0?"SUPERÁVIT":"DÉFICIT"],
+      [],
+      ["DETALHAMENTO GASTOS POR TIPO",""],
+      ["Tipo","Valor (R$)"],
+      ...Object.entries(byT2).sort((a,b)=>b[1]-a[1]).map(([k,v])=>[TBADGE[k]?.label||k,v]),
+    ];
+    const wsRes=XLSX.utils.aoa_to_sheet(resRows);
+    wsRes["!cols"]=[{wch:32},{wch:20}];
+    XLSX.utils.book_append_sheet(wb,wsRes,"Resumo");
+    XLSX.writeFile(wb,"Balanco_FestaJunina2026_APM_ITB.xlsx");
+    toast("✅ Excel exportado com sucesso!");
+  }catch(e){console.error(e);toast("Erro ao gerar Excel: "+e.message,"#C0392B");}
+};
+
+/* ══════════════════════════════════════════════════
+   AÇÕES — TODAS SALVAM AUTOMATICAMENTE
+══════════════════════════════════════════════════ */
+window.sT=t=>{S.tab=t;render();};
+window.sER=id=>{S.erI=id;S.erD={...S.rec.find(r=>r.id===id)};render();};
+window.saveR=()=>{S.rec=S.rec.map(r=>r.id===S.erI?S.erD:r);S.erI=null;S.erD=null;saveData();render();toast("Receita atualizada e salva!");};
+window.cancelR=()=>{S.erI=null;S.erD=null;render();};
+window.delR=id=>{if(confirm("Remover esta receita?")){S.rec=S.rec.filter(r=>r.id!==id);saveData();render();toast("Receita removida");}};
+window.setNrTipo=tp=>{S.nr.tipo=tp;render();};
+window.clearNr=()=>{S.nr={responsavel:"",data:"",receitaBruta:"",pct:25,tipo:"barraca"};render();};
+window.addR=()=>{
+  const resp=document.getElementById("nr-resp")?.value||"";
+  const data=document.getElementById("nr-data")?.value||"—";
+  const rb=parseFloat(document.getElementById("nr-rb")?.value)||0;
+  const pct=parseFloat(document.getElementById("nr-pct-num")?.value)||0;
+  if(!resp||rb<=0){alert("Preencha responsável e receita bruta.");return;}
+  S.rec=[...S.rec,{id:S.nextId++,responsavel:resp,data,receitaBruta:rb,parceiro:r2(rb*(100-pct)/100),apm:r2(rb*pct/100),pct,tipo:S.nr.tipo}];
+  S.nr={responsavel:"",data:"",receitaBruta:"",pct:25,tipo:"barraca"};
+  saveData();render();toast("✅ Receita adicionada e salva!");
+};
+window.updPreview=function(){
+  const rb=parseFloat(S.nr.receitaBruta)||0;
+  const pct=parseFloat(S.nr.pct)||0;
+  const get=id=>document.getElementById(id);
+  if(get("prev-rb")) get("prev-rb").textContent=BRL(rb);
+  if(get("prev-apm")){get("prev-apm").textContent=BRL(r2(rb*pct/100));get("prev-apm-lbl").textContent=`APM recebe (${pct}%)`;}
+  if(get("prev-parc")){get("prev-parc").textContent=BRL(r2(rb*(100-pct)/100));get("prev-parc-lbl").textContent=`Parceiro recebe (${100-pct}%)`;}
+  if(get("nr-pct-lbl")) get("nr-pct-lbl").textContent=pct+"%";
+  if(get("nr-parc-pct-lbl")) get("nr-parc-pct-lbl").textContent=(100-pct)+"%";
+};
+window.sEG=id=>{S.egI=id;S.egD={...S.gas.find(g=>g.id==id)};render();};
+window.saveG=()=>{S.gas=S.gas.map(g=>g.id===S.egI?S.egD:g);S.egI=null;S.egD=null;saveData();render();toast("Gasto atualizado e salvo!");};
+window.cancelG=()=>{S.egI=null;S.egD=null;render();};
+window.delG=id=>{if(confirm("Remover este lançamento?")){S.gas=S.gas.filter(g=>g.id!=id);saveData();render();toast("Gasto removido");}};
+window.addM=()=>{
+  const desc=document.getElementById("nd")?.value||"";
+  const forn=document.getElementById("nf")?.value||"";
+  const data=document.getElementById("ndt")?.value||"—";
+  const valor=parseFloat(document.getElementById("nv")?.value)||0;
+  const tipo=document.getElementById("nt")?.value||"outro";
+  if(!desc&&!valor) return;
+  S.gas=[...S.gas,{id:"m"+Date.now(),descricao:desc||"Sem descrição",fornecedor:forn||"—",valor,data,tipo,origem:"Manual"}];
+  S.ng={desc:"",forn:"",data:"",valor:"",tipo:"alimentacao"};
+  saveData();render();toast("✅ Gasto adicionado e salvo!");
+};
+window.hF=async files=>{
+  if(!files?.length) return;
+  for(const f of Array.from(files)){
+    S.proc++;render();
+    await new Promise(res=>{
+      const rd=new FileReader();
+      rd.onloadend=async()=>{
+        const b64=rd.result.split(",")[1];
+        try{
+          const rp=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:1000,messages:[{role:"user",content:[{type:"image",source:{type:"base64",media_type:f.type||"image/jpeg",data:b64}},{type:"text",text:'Analise o recibo. Retorne SOMENTE JSON válido: {"descricao":"desc breve","fornecedor":"estabelecimento","valor":0.00,"data":"DD/MM/YYYY ou null","tipo":"alimentacao|material|decoracao|servico|premio|outro"}'}]}]})});
+          const d=await rp.json();
+          const p=JSON.parse((d.content?.[0]?.text||"{}").replace(/```json\n?|```/g,"").trim());
+          S.gas=[...S.gas,{id:"ai"+Date.now(),descricao:p.descricao||f.name,fornecedor:p.fornecedor||"—",valor:r2(p.valor)||0,data:p.data||"—",tipo:p.tipo||"outro",origem:"IA — "+f.name}];
+          saveData();
+          toast("✅ Recibo processado e salvo: "+f.name);
+        }catch{
+          S.gas=[...S.gas,{id:"ai"+Date.now(),descricao:"Recibo — "+f.name,fornecedor:"Verificar manualmente",valor:0,data:"—",tipo:"outro",origem:f.name}];
+          saveData();
+        }
+        S.proc--;render();res();
+      };rd.readAsDataURL(f);
+    });
+  }
+};
+
+/* Salva também antes de fechar a página, por garantia */
+window.addEventListener("beforeunload",()=>{try{saveData();}catch{}});
+
+render();
+/* Salva o estado inicial na primeira abertura */
+if(!loaded.savedAt) saveData();
+</script>
+</body>
+</html>
