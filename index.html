@@ -139,6 +139,57 @@ const REC_COLORS={barraca:"#EF9F27",sorteio:"#7F77DD",ingresso:"#1D9E75",doacao:
 ══════════════════════════════════════════════════ */
 const STORAGE_KEY="apm_dashboard_eventos_v1";
 
+/* ═══════════════════════════════════════════════════
+   SINCRONIZAÇÃO COM GOOGLE SHEETS (compartilhado)
+   👉 Cole abaixo a URL do seu App da Web do Apps Script
+      (a que termina em /exec)
+═══════════════════════════════════════════════════ */
+const SYNC_URL="https://script.google.com/macros/s/AKfycbxsIIQAvUMjkkmMnjePaLQqmsLPvwiOTGUcWYc58oBwV6H6DflN4x7ycrEgbSFpEwu1BQ/exec";
+
+let syncBusy=false;
+function setSyncStatus(txt,color){
+  const el=document.getElementById("save-ind");
+  if(el){el.innerHTML=txt;el.style.color=color||"";}
+}
+
+/* Envia o estado completo para a planilha (todos verão) */
+async function pushRemote(){
+  if(!SYNC_URL||SYNC_URL.indexOf("/exec")<0) return;
+  try{
+    setSyncStatus("☁ Enviando...","#F9E79F");
+    await fetch(SYNC_URL,{method:"POST",body:JSON.stringify({cfg:S.cfg,rec:S.rec,gas:S.gas,nextId:S.nextId,savedAt:new Date().toISOString()})});
+    setSyncStatus("☁ Sincronizado às "+nowTime(),"#A9DFBF");
+  }catch(e){
+    console.warn("Sync push falhou:",e);
+    setSyncStatus("💾 Salvo local (sem internet?)","#F5B7B1");
+  }
+}
+
+/* Busca o estado da planilha ao abrir a página */
+async function pullRemote(){
+  if(!SYNC_URL||SYNC_URL.indexOf("/exec")<0) return;
+  try{
+    setSyncStatus("☁ Carregando dados compartilhados...","#F9E79F");
+    const resp=await fetch(SYNC_URL);
+    const txt=await resp.text();
+    const d=JSON.parse(txt);
+    if(d&&d.cfg&&Array.isArray(d.rec)&&Array.isArray(d.gas)){
+      const localTime=S.lastSaveISO?new Date(S.lastSaveISO).getTime():0;
+      const remoteTime=d.savedAt?new Date(d.savedAt).getTime():0;
+      if(remoteTime>=localTime){
+        S.cfg=d.cfg;S.rec=d.rec;S.gas=d.gas;S.nextId=d.nextId||S.nextId;
+        S.lastSaveISO=d.savedAt;
+        try{localStorage.setItem(STORAGE_KEY,txt);}catch{}
+        render();
+      }
+    }
+    setSyncStatus("☁ Sincronizado","#A9DFBF");
+  }catch(e){
+    console.warn("Sync pull falhou:",e);
+    setSyncStatus("💾 Modo local (planilha inacessível)","#F5B7B1");
+  }
+}
+
 function loadData(){
   try{
     const raw=localStorage.getItem(STORAGE_KEY);
@@ -151,27 +202,16 @@ function loadData(){
     cfg:{nome:"",org:"",periodo:"",emoji:"🎉",configured:false},
     rec:[],gas:[],nextId:1,savedAt:null
   };
-}function salvarDados() {
-  const dados = {
-    produto: "Pão Francês",
-    quantidade: 2.165,
-    valor: 40.92,
-    pagamento: "Dinheiro"
-  };
-
-  fetch("https://script.google.com/macros/s/AKfycbxsIIQAvUMjkkmMnjePaLQqmsLPvwiOTGUcWYc58oBwV6H6DflN4x7ycrEgbSFpEwu1BQ/exec", {
-    method: "POST",
-    body: JSON.stringify(dados)
-  })
-  .then(res => res.text())
-  .then(msg => console.log(msg))
-  .catch(err => console.error(err));
+}
 function saveData(){
   try{
-    localStorage.setItem(STORAGE_KEY,JSON.stringify({cfg:S.cfg,rec:S.rec,gas:S.gas,nextId:S.nextId,savedAt:new Date().toISOString()}));
+    const iso=new Date().toISOString();
+    S.lastSaveISO=iso;
+    localStorage.setItem(STORAGE_KEY,JSON.stringify({cfg:S.cfg,rec:S.rec,gas:S.gas,nextId:S.nextId,savedAt:iso}));
     S.lastSave=nowTime();
     const el=document.getElementById("save-ind");
     if(el) el.innerHTML=`💾 Salvo às ${S.lastSave}`;
+    pushRemote(); /* envia para a planilha compartilhada */
     return true;
   }catch(e){toast("⚠ Erro ao salvar","#C0392B");return false;}
 }
@@ -217,6 +257,7 @@ let S={
   cfg:loaded.cfg,
   rec:loaded.rec,gas:loaded.gas,nextId:loaded.nextId||1,
   lastSave:loaded.savedAt?new Date(loaded.savedAt).toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"}):null,
+  lastSaveISO:loaded.savedAt||null,
   erI:null,erD:null,egI:null,egD:null,
   nr:{responsavel:"",data:"",receitaBruta:"",pct:25,tipo:"barraca"},
   ng:{desc:"",forn:"",data:"",valor:"",tipo:"material"},
@@ -954,6 +995,8 @@ window.hF=async files=>{
 
 window.addEventListener("beforeunload",()=>{try{if(S.cfg.configured)saveData();}catch{}});
 render();
+pullRemote(); /* carrega os dados compartilhados da planilha */
+setInterval(pullRemote, 120000); /* re-sincroniza a cada 2 min */
 </script>
 </body>
 </html>
