@@ -151,7 +151,21 @@ function loadData(){
     cfg:{nome:"",org:"",periodo:"",emoji:"🎉",configured:false},
     rec:[],gas:[],nextId:1,savedAt:null
   };
-}
+}function salvarDados() {
+  const dados = {
+    produto: "Pão Francês",
+    quantidade: 2.165,
+    valor: 40.92,
+    pagamento: "Dinheiro"
+  };
+
+  fetch("https://script.google.com/macros/s/AKfycbxsIIQAvUMjkkmMnjePaLQqmsLPvwiOTGUcWYc58oBwV6H6DflN4x7ycrEgbSFpEwu1BQ/exec", {
+    method: "POST",
+    body: JSON.stringify(dados)
+  })
+  .then(res => res.text())
+  .then(msg => console.log(msg))
+  .catch(err => console.error(err));
 function saveData(){
   try{
     localStorage.setItem(STORAGE_KEY,JSON.stringify({cfg:S.cfg,rec:S.rec,gas:S.gas,nextId:S.nextId,savedAt:new Date().toISOString()}));
